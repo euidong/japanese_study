@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>일본어 동사 퀴즈</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <section id="screen-start">
+      <h1>일본어 동사 퀴즈</h1>
+      <p>그림을 보고 알맞은 답을 고르세요.</p>
+      <form id="start-form">
+        <label>문항 수</label>
+        <div class="chips">
+          <label><input type="radio" name="count" value="15" checked><span>15</span></label>
+          <label><input type="radio" name="count" value="30"><span>30</span></label>
+          <label><input type="radio" name="count" value="45"><span>45</span></label>
+        </div>
+        <button type="submit">시작</button>
+      </form>
+    </section>
+
+    <section id="screen-quiz" hidden>
+      <div class="topbar">
+        <div class="progress"><span id="qNum">1</span> / <span id="qTotal">15</span></div>
+        <div class="score">정답 <span id="qScore">0</span></div>
+      </div>
+      <div class="progressbar"><div id="progressFill"></div></div>
+      <div class="image-wrap"><img id="qImage" src="" alt=""></div>
+      <div class="hints">
+        <div class="hint" id="hint1"></div>
+        <div class="hint" id="hint2"></div>
+      </div>
+      <div class="question-label" id="qLabel"></div>
+      <div class="choices" id="choices"></div>
+    </section>
+
+    <section id="screen-result" hidden>
+      <h2>결과</h2>
+      <div class="score-summary">
+        <div class="big-score"><span id="rScore">0</span> / <span id="rTotal">0</span></div>
+        <div class="big-percent"><span id="rPercent">0</span>%</div>
+      </div>
+      <h3 id="wrongHeader" hidden>틀린 문제</h3>
+      <div id="wrongList"></div>
+      <button id="restart">다시 시작</button>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
