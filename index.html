@@ -12,6 +12,12 @@
       <h1>일본어 동사 퀴즈</h1>
       <p>그림을 보고 알맞은 답을 고르세요.</p>
       <form id="start-form">
+        <label>모드</label>
+        <div class="chips chips-mode">
+          <label><input type="radio" name="mode" value="masu" checked><span>마스형 맞추기</span></label>
+          <label><input type="radio" name="mode" value="meaning"><span>뜻 맞추기</span></label>
+          <label><input type="radio" name="mode" value="ja"><span>일본어 맞추기</span></label>
+        </div>
         <label>문항 수</label>
         <div class="chips">
           <label><input type="radio" name="count" value="15" checked><span>15</span></label>
@@ -24,15 +30,16 @@
 
     <section id="screen-quiz" hidden>
       <div class="topbar">
+        <button type="button" id="stopBtn" class="stop-btn" aria-label="그만두기">그만두기</button>
         <div class="progress"><span id="qNum">1</span> / <span id="qTotal">15</span></div>
         <div class="score">정답 <span id="qScore">0</span></div>
       </div>
       <div class="progressbar"><div id="progressFill"></div></div>
-      <div class="image-wrap"><img id="qImage" src="" alt=""></div>
-      <div class="hints">
-        <div class="hint" id="hint1"></div>
-        <div class="hint" id="hint2"></div>
+      <div class="image-wrap" id="imageWrap">
+        <button type="button" id="revealImageBtn" class="reveal-image-btn" hidden>그림 힌트 보기</button>
+        <img id="qImage" src="" alt="">
       </div>
+      <div class="hints" id="hints"></div>
       <div class="question-label" id="qLabel"></div>
       <div class="choices" id="choices"></div>
     </section>

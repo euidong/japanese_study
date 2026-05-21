@@ -1,8 +1,8 @@
-const FIELDS = ["dict", "masu", "meaning"];
 const FIELD_LABELS = { dict: "기본형", masu: "마스형", meaning: "뜻" };
 const FEEDBACK_DELAY_MS = 900;
 
 const state = {
+  mode: "masu",
   questions: [],
   index: 0,
   score: 0,
@@ -22,13 +22,29 @@ function pickN(arr, n) {
   return shuffle(arr).slice(0, n);
 }
 
-function buildQuestions(n) {
+// Per-mode question spec.
+// hidden: which field is the answer
+// hintFields: which non-hidden text fields show as on-screen hints
+// imageMode: 'always' = image visible from start, 'on-demand' = behind a button
+function modeSpec(mode) {
+  if (mode === "meaning") {
+    return { hidden: "meaning", hintFields: ["dict", "masu"], imageMode: "on-demand" };
+  }
+  if (mode === "ja") {
+    const hidden = Math.random() < 0.5 ? "dict" : "masu";
+    return { hidden, hintFields: ["meaning"], imageMode: "always" };
+  }
+  // default: masu
+  return { hidden: "masu", hintFields: ["dict", "meaning"], imageMode: "always" };
+}
+
+function buildQuestions(n, mode) {
   const verbs = pickN(window.VERBS, n);
   return verbs.map(v => {
-    const hidden = FIELDS[Math.floor(Math.random() * FIELDS.length)];
+    const spec = modeSpec(mode);
+    const { hidden, hintFields, imageMode } = spec;
     const correct = v[hidden];
 
-    // Distractor pool: other verbs whose value in this field differs from the correct one.
     const pool = window.VERBS.filter(o => o.num !== v.num && o[hidden] !== correct);
     const sameGroup = pool.filter(o => o.group === v.group);
 
@@ -41,7 +57,7 @@ function buildQuestions(n) {
     }
 
     const options = shuffle([correct, ...distractors.map(d => d[hidden])]);
-    return { verb: v, hidden, options };
+    return { verb: v, hidden, hintFields, imageMode, options };
   });
 }
 
@@ -51,8 +67,9 @@ function showScreen(id) {
   });
 }
 
-function startQuiz(count) {
-  state.questions = buildQuestions(count);
+function startQuiz(mode, count) {
+  state.mode = mode;
+  state.questions = buildQuestions(count, mode);
   state.index = 0;
   state.score = 0;
   state.wrong = [];
@@ -68,15 +85,27 @@ function renderQuestion() {
   document.getElementById("qScore").textContent = state.score;
   document.getElementById("progressFill").style.width =
     `${(state.index / state.questions.length) * 100}%`;
+
   const img = document.getElementById("qImage");
+  const revealBtn = document.getElementById("revealImageBtn");
   img.src = v.image;
   img.alt = v.dict;
+  if (q.imageMode === "on-demand") {
+    img.hidden = true;
+    revealBtn.hidden = false;
+  } else {
+    img.hidden = false;
+    revealBtn.hidden = true;
+  }
 
-  const shown = FIELDS.filter(f => f !== q.hidden);
-  const hint1 = document.getElementById("hint1");
-  const hint2 = document.getElementById("hint2");
-  renderHint(hint1, shown[0], v[shown[0]]);
-  renderHint(hint2, shown[1], v[shown[1]]);
+  const hintsEl = document.getElementById("hints");
+  hintsEl.innerHTML = "";
+  q.hintFields.forEach(f => {
+    const hint = document.createElement("div");
+    hint.className = "hint";
+    renderHint(hint, f, v[f]);
+    hintsEl.appendChild(hint);
+  });
 
   document.getElementById("qLabel").textContent =
     `${FIELD_LABELS[q.hidden]}을(를) 고르세요`;
@@ -186,12 +215,24 @@ function showResult() {
 
 document.getElementById("start-form").addEventListener("submit", e => {
   e.preventDefault();
+  const mode = document.querySelector('input[name=mode]:checked').value;
   const count = parseInt(
     document.querySelector('input[name=count]:checked').value, 10
   );
-  startQuiz(count);
+  startQuiz(mode, count);
 });
 
 document.getElementById("restart").addEventListener("click", () => {
   showScreen("screen-start");
+});
+
+document.getElementById("stopBtn").addEventListener("click", () => {
+  if (confirm("퀴즈를 그만두시겠습니까? 진행 내용은 사라집니다.")) {
+    showScreen("screen-start");
+  }
+});
+
+document.getElementById("revealImageBtn").addEventListener("click", () => {
+  document.getElementById("qImage").hidden = false;
+  document.getElementById("revealImageBtn").hidden = true;
 });
