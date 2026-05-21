@@ -236,3 +236,67 @@ document.getElementById("revealImageBtn").addEventListener("click", () => {
   document.getElementById("qImage").hidden = false;
   document.getElementById("revealImageBtn").hidden = true;
 });
+
+const GROUP_TITLES = {
+  1: "Group 1. る탈락 (2그룹 / 一段)",
+  2: "Group 2. う→い (1그룹 / 五段)",
+  3: "Group 3. 불규칙 (3그룹)",
+};
+
+function renderList() {
+  const container = document.getElementById("listContainer");
+  container.innerHTML = "";
+  const byGroup = { 1: [], 2: [], 3: [] };
+  window.VERBS.forEach(v => byGroup[v.group].push(v));
+  [1, 2, 3].forEach(g => {
+    const group = byGroup[g];
+    if (group.length === 0) return;
+    const title = document.createElement("h3");
+    title.className = "list-group-title";
+    title.textContent = `${GROUP_TITLES[g]} · ${group.length}개`;
+    container.appendChild(title);
+    group
+      .slice()
+      .sort((a, b) => a.num - b.num)
+      .forEach(v => container.appendChild(renderListCard(v)));
+  });
+}
+
+function renderListCard(v) {
+  const card = document.createElement("div");
+  card.className = "list-card";
+
+  const num = document.createElement("div");
+  num.className = "num";
+  num.textContent = v.num;
+
+  const img = document.createElement("img");
+  img.src = v.image;
+  img.alt = v.dict;
+  img.loading = "lazy";
+
+  const text = document.createElement("div");
+  text.className = "text";
+  const ja = document.createElement("div");
+  ja.className = "ja";
+  ja.textContent = `${v.dict} / ${v.masu}`;
+  const meaning = document.createElement("div");
+  meaning.className = "meaning";
+  meaning.textContent = v.meaning;
+  text.appendChild(ja);
+  text.appendChild(meaning);
+
+  card.appendChild(num);
+  card.appendChild(img);
+  card.appendChild(text);
+  return card;
+}
+
+document.getElementById("openListBtn").addEventListener("click", () => {
+  renderList();
+  showScreen("screen-list");
+});
+
+document.getElementById("listBackBtn").addEventListener("click", () => {
+  showScreen("screen-start");
+});
